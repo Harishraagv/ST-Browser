@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Solution Times</title>
+  <style>
+    :root {
+      --bg: rgba(255, 255, 255, 0.2);
+      --text: #000;
+      --blur: 10px;
+    }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: url('') center center / cover no-repeat fixed;
+      color: var(--text);
+      transition: background 0.5s, color 0.5s;
+    }
+    header {
+      position: relative;
+      height: 60px;
+    }
+    #logo {
+      width: 40px;
+      height: 40px;
+      position: absolute;
+      left: 10px;
+      top: 10px;
+    }
+    #datetime {
+      position: absolute;
+      left: 60px;
+      top: 10px;
+      font-size: 0.9em;
+    }
+    #credit {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      animation: fade 3s infinite;
+      font-size: 0.9em;
+    }
+    @keyframes fade {
+      0%, 100% { opacity: 0; }
+      50% { opacity: 1; }
+    }
+
+    #mainCenter {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      width: 90%;
+      max-width: 500px;
+    }
+
+    #title {
+      font-size: 1.8em;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .glass {
+      background: var(--bg);
+      backdrop-filter: blur(var(--blur));
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+
+    #searchBar {
+      display: flex;
+      align-items: center;
+      border: 2px solid transparent;
+      transition: border 0.5s;
+    }
+
+    #searchInput {
+      flex-grow: 1;
+      padding: 10px;
+      border: none;
+      background: transparent;
+      color: var(--text);
+      font-size: 1em;
+      outline: none;
+    }
+
+    #searchInput::placeholder {
+      color: #888;
+    }
+
+    #searchIcon {
+      font-size: 1.2em;
+      margin-left: 10px;
+    }
+
+    #searchBar:focus-within {
+      border-image: linear-gradient(to right, red, blue, green) 1;
+      border-width: 2px;
+      border-style: solid;
+    }
+
+    #engineSelect {
+      margin-top: 10px;
+    }
+
+    #engineSelect label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    #engineSelect select {
+      width: 100%;
+      padding: 5px;
+    }
+
+    #settings {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+
+    #settingsPanel {
+      position: fixed;
+      bottom: 50px;
+      right: 10px;
+      background: var(--bg);
+      backdrop-filter: blur(var(--blur));
+      padding: 10px;
+      border-radius: 10px;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    button, input[type="color"], input[type="file"] {
+      padding: 5px;
+      font-size: 1em;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img id="logo" src="st.jpg" alt="Logo" />
+    <div id="datetime"></div>
+    <div id="credit">Created by Harish. R</div>
+  </header>
+
+  <div id="mainCenter">
+    <div id="title">Solution Times</div>
+    <div class="glass" id="searchContainer">
+      <div id="searchBar">
+        <input type="text" id="searchInput" placeholder="Search anything" />
+        <span id="searchIcon">🔍</span>
+      </div>
+      <div id="engineSelect">
+        <label for="engine">Set search engine:</label>
+        <select id="engine">
+          <option value="https://www.google.com/search?q=">Google</option>
+          <option value="https://www.bing.com/search?q=" selected>Bing</option>
+          <option value="https://search.yahoo.com/search?p=">Yahoo</option>
+          <option value="https://duckduckgo.com/?q=">DuckDuckGo</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div id="settings">⚙️ Settings</div>
+  <div id="settingsPanel" class="glass">
+    <button onclick="toggleTheme()">Toggle Light/Dark</button>
+    <label>Text Color: <input type="color" onchange="changeTextColor(this.value)" /></label>
+    <label>Background Image: <input type="file" accept="image/*" onchange="setBackground(this)" /></label>
+    <button onclick="clearSettings()">Clear</button>
+  </div>
+
+  <script>
+    const datetime = document.getElementById("datetime");
+    setInterval(() => {
+      const now = new Date();
+      datetime.textContent = now.toLocaleString();
+    }, 1000);
+
+    document.getElementById("searchInput").addEventListener("keydown", function(e) {
+      if (e.key === "Enter") {
+        const query = this.value.trim();
+        if (!query) return;
+        if (query.includes(".") && !query.includes(" ")) {
+          window.location.href = query.startsWith("http") ? query : "https://" + query;
+        } else {
+          const engine = document.getElementById("engine").value;
+          window.location.href = engine + encodeURIComponent(query);
+        }
+      }
+    });
+
+    document.getElementById("settings").addEventListener("click", () => {
+      const panel = document.getElementById("settingsPanel");
+      panel.style.display = panel.style.display === "flex" ? "none" : "flex";
+    });
+
+    function toggleTheme() {
+      const root = document.documentElement;
+      const currentBg = getComputedStyle(root).getPropertyValue('--bg');
+      if (currentBg.includes('255')) {
+        // Switch to dark
+        root.style.setProperty('--bg', 'rgba(0,0,0,0.4)');
+        root.style.setProperty('--text', '#fff');
+        document.body.style.backgroundColor = '#000';
+      } else {
+        // Switch to light
+        root.style.setProperty('--bg', 'rgba(255,255,255,0.2)');
+        root.style.setProperty('--text', '#000');
+        document.body.style.backgroundColor = '#fff';
+      }
+    }
+
+    function changeTextColor(color) {
+      document.documentElement.style.setProperty('--text', color);
+    }
+
+    function setBackground(input) {
+      const file = input.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          document.body.style.backgroundImage = `url('${reader.result}')`;
+          document.body.style.backgroundSize = 'cover';
+          document.body.style.backgroundRepeat = 'no-repeat';
+          document.body.style.backgroundPosition = 'center center';
+          document.body.style.backgroundAttachment = 'fixed';
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function clearSettings() {
+      document.body.style.backgroundImage = '';
+      document.body.style.backgroundColor = '#fff';
+      document.documentElement.style.setProperty('--text', '#000');
+      document.documentElement.style.setProperty('--bg', 'rgba(255,255,255,0.2)');
+    }
+  </script>
+</body>
+</html>
